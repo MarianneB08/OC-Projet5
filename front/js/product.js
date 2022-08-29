@@ -2,6 +2,7 @@ const url = window.location.href;
 const urlProduct = new URL(url);
 let idProduct = "";
 
+
 let search_params = new URLSearchParams(urlProduct.search);
 
 if(search_params.has('id')) {
@@ -12,16 +13,18 @@ fetch(`http://localhost:3000/api/products/${idProduct}`)
 .then(function (response) {
     return response.json();
 })
-.then(function(products) {
-    console.log(products);
+.then(function(products){
+    let itemInfos;
+    for(let i in products){
+        itemInfos = i;
+        console.log(itemInfos, products[i]);
+        //console.log(itemInfos, products[i].name);
+        document.querySelector('#title').innerHTML = (itemInfos, products[i].name);
+        document.querySelector('#price').innerHTML = (itemInfos, products[i].price);
+        document.querySelector('#description').innerHTML = (itemInfos, products[i].description);
+        document.querySelector('.item__img').innerHTML = `<img src="${(itemInfos, products[i].imageUrl)}" alt="${itemInfos, products[i].altTxt}">`;
+    }
+}).catch(function(erreur) {
+    console.log("erreur!");
 })
-
-
-/*Pour afficher les caractéristiques d'un seul produit, il faut d'abord récupérer l'id du produit.
-
-Comment accéder à l'id du produit ? 
-- dans l'URL de chaque page
-
-On sait que URLSearchParams peut nous aider à accéder à cet id .
-*/
 
