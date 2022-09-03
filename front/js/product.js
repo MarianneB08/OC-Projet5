@@ -35,7 +35,7 @@ fetch(`http://localhost:3000/api/products/${idProduct}`)
 
 
 
-/////////////// AJOUTER LE PRODUIT ET SES CARACTÉRISTIQUES AU LOCALSTORAGE ///////////////
+/////////////// MISE EN PLACE DE MESSAGES D'ALERTES ET AJOUT D'INFOS DANS LE LOCALSTORAGE ///////////////
 
 
 const color = document.querySelector("#colors");
@@ -43,15 +43,36 @@ const quantity = document.querySelector("#quantity");
 const btnAddToBasket = document.querySelector("#addToCart");
 
 btnAddToBasket.addEventListener("click", (e) => {
-    if((color.value == null || color.value === "") || (quantity.value == null || quantity.value === "" || quantity.value <= 0)){
+    if ((color.value == null || color.value === "") || (quantity.value == null || quantity.value === "" || quantity.value <= 0)) {
         alert("Veuillez indiquer la couleur et la quantité souhaitées")
-    }else if(quantity.value > 0 && quantity.value < 100) {
-         const choices = {
-            id: idProduct,
-            color: color.value,
-            quantity: quantity.value
-         }
-    }else if(quantity.value > 100) {
+    } else if (quantity.value > 100) {
         alert("Vous ne pouvez pas commander plus de 100 produits")
     }
 });
+
+
+/////////////// AJOUTER LE PRODUIT ET SES CARACTÉRISTIQUES AU LOCALSTORAGE ///////////////
+
+btnAddToBasket.addEventListener("click", () => {
+    if(quantity.value > 0 && quantity.value < 100 && color.value != undefined) {
+        let userChoice = {
+            choosenProduct : idProduct,
+            choosenColor : color.value,
+            choosenQuantity : quantity.value
+        }
+        let productInLocalStorage = JSON.parse(localStorage.getItem("product"))
+        if (productInLocalStorage){
+            productInLocalStorage.push(userChoice)
+            localStorage.setItem("product", JSON.stringify(productInLocalStorage))
+            alert("Votre sélection a bien été ajoutée au panier")
+        } else {
+            productInLocalStorage = []
+            productInLocalStorage.push(userChoice)
+            console.log(productInLocalStorage)
+            localStorage.setItem("product", JSON.stringify(productInLocalStorage))
+            alert("Votre sélection a bien été ajoutée au panier")
+        }
+    }
+});
+        
+
