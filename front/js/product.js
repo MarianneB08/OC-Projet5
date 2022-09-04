@@ -3,33 +3,33 @@
 // On récupère l'id du produit dans l'url de la page produit
 
 const url = window.location.href;
-const urlProduct = new URL(url);
-let idProduct = "";
-let search_params = new URLSearchParams(urlProduct.search);
+const urlDuKanap = new URL(url);
+let idDuKanap = "";
+let search_params = new URLSearchParams(urlDuKanap.search);
 
 if (search_params.has('id')) {
-    idProduct = search_params.get('id');
+    idDuKanap = search_params.get('id');
 };
 
 // On appelle l'API pour récupérer les caractéristiques du produit
 
-fetch(`http://localhost:3000/api/products/${idProduct}`)
-    .then(function (response) {
-        return response.json();
+fetch(`http://localhost:3000/api/products/${idDuKanap}`)
+    .then(function (reponse) {
+        return reponse.json();
     })
-    .then(function (products) {
-        let itemInfos;
-        for (let i in products) {
-            itemInfos = i;
+    .then(function (listeDesKanap) {
+        let infosDuKanap;
+        for (let i in listeDesKanap) {
+            infosDuKanap = i;
             // On injecte les caractéristiques dans la structure HTML
-            document.querySelector('#title').innerHTML = (itemInfos, products.name);
-            document.querySelector('#price').innerHTML = (itemInfos, products.price);
-            document.querySelector('#description').innerHTML = (itemInfos, products.description);
-            document.querySelector('.item__img').innerHTML = `<img src="${(itemInfos, products.imageUrl)}" alt="${itemInfos, products.altTxt}">`;
+            document.querySelector('#title').innerHTML = (infosDuKanap, listeDesKanap.name);
+            document.querySelector('#price').innerHTML = (infosDuKanap, listeDesKanap.price);
+            document.querySelector('#description').innerHTML = (infosDuKanap, listeDesKanap.description);
+            document.querySelector('.item__img').innerHTML = `<img src="${(infosDuKanap, listeDesKanap.imageUrl)}" alt="${infosDuKanap, listeDesKanap.altTxt}">`;
         }
-        const colorArray = products.colors;
-        for (let color of colorArray) {
-            document.querySelector('#colors').innerHTML += `<option value="${color}"> ${color}</option>`
+        const tableauDeCouleurs = listeDesKanap.colors;
+        for (let couleur of tableauDeCouleurs) {
+            document.querySelector('#colors').innerHTML += `<option value="${couleur}"> ${couleur}</option>`
         }
     })
 
@@ -38,14 +38,14 @@ fetch(`http://localhost:3000/api/products/${idProduct}`)
 /////////////// MISE EN PLACE DE MESSAGES D'ALERTES ET AJOUT D'INFOS DANS LE LOCALSTORAGE ///////////////
 
 
-const color = document.querySelector("#colors");
-const quantity = document.querySelector("#quantity");
-const btnAddToBasket = document.querySelector("#addToCart");
+const couleurInput = document.querySelector("#colors");
+const quantiteInput = document.querySelector("#quantity");
+const btnAjouterAuPanier = document.querySelector("#addToCart");
 
-btnAddToBasket.addEventListener("click", (e) => {
-    if ((color.value == null || color.value === "") || (quantity.value == null || quantity.value === "" || quantity.value <= 0)) {
+btnAjouterAuPanier.addEventListener("click", (e) => {
+    if ((couleurInput.value == null || couleurInput.value === "") || (quantiteInput.value == null || quantiteInput.value === "" || quantiteInput.value <= 0)) {
         alert("Veuillez indiquer la couleur et la quantité souhaitées")
-    } else if (quantity.value > 100) {
+    } else if (quantiteInput.value > 100) {
         alert("Vous ne pouvez pas commander plus de 100 produits")
     }
 });
@@ -53,26 +53,47 @@ btnAddToBasket.addEventListener("click", (e) => {
 
 /////////////// AJOUTER LE PRODUIT ET SES CARACTÉRISTIQUES AU LOCALSTORAGE ///////////////
 
-btnAddToBasket.addEventListener("click", () => {
-    if(quantity.value > 0 && quantity.value < 100 && color.value != undefined) {
-        let userChoice = {
-            choosenProduct : idProduct,
-            choosenColor : color.value,
-            choosenQuantity : quantity.value
-        }
-        let productInLocalStorage = JSON.parse(localStorage.getItem("product"))
-        if (productInLocalStorage){
-            productInLocalStorage.push(userChoice)
-            localStorage.setItem("product", JSON.stringify(productInLocalStorage))
-            alert("Votre sélection a bien été ajoutée au panier")
-        } else {
-            productInLocalStorage = []
-            productInLocalStorage.push(userChoice)
-            console.log(productInLocalStorage)
-            localStorage.setItem("product", JSON.stringify(productInLocalStorage))
-            alert("Votre sélection a bien été ajoutée au panier")
-        }
+btnAjouterAuPanier.addEventListener("click", () => {
+    if (quantiteInput.value > 0 && quantiteInput.value < 100 && couleurInput.value != undefined) { // Evénement au clic sur le bouton "Ajouter au panier"
+        ajouterAuLocalStorage();
     }
 });
-        
 
+function ajouterAuLocalStorage(choixDuClient) {
+    choixDuClient = { // Objet contenant les 3 informations qui doivent figurer dans le localStorage
+        kanapChoisi: idDuKanap,
+        couleurChoisie: couleurInput.value,
+        quantiteChoisie: parseInt(quantiteInput.value)
+    }
+    let contenuDuLocalStorage = JSON.parse(localStorage.getItem("choixDuClient"))
+    if (contenuDuLocalStorage === null) { // Cas de figure si le localStorage est vide
+        contenuDuLocalStorage = []
+        contenuDuLocalStorage.push(choixDuClient)
+        localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
+        alert("Votre sélection a bien été ajoutée au panier")
+    } else { // Cas de figure si le localStorage contient au moins un élément
+        let index = 0;
+        for (let v of contenuDuLocalStorage) {
+            // Cas de figure si le localStorage contient un élément avec le même ID et la même couleur
+            if (v.kanapChoisi === choixDuClient.kanapChoisi && v.couleurChoisie === choixDuClient.couleurChoisie) {
+                const nouvelleQuantite = v.quantiteChoisie += choixDuClient.quantiteChoisie
+                contenuDuLocalStorage.splice(index,1)
+                const majChoixDuClient = {
+                    majId: v.kanapChoisi,
+                    majCouleur: v.couleurChoisie,
+                    majQuantite: nouvelleQuantite
+                }
+                contenuDuLocalStorage.push(majChoixDuClient)
+                localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
+                index++;
+                break
+            }   // Cas de figure si le localStorage contient un élément avec le même ID mais pas la même couleur
+                else if (v.kanapChoisi === choixDuClient.kanapChoisi && v.couleurChoisie !== choixDuClient.couleurChoisie) {
+                contenuDuLocalStorage.push(choixDuClient)
+                localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
+                index++;
+                break
+            }
+        }
+    }
+}

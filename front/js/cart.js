@@ -1,5 +1,10 @@
 
+const cartContent = localStorage.getItem("customerChoice");
+const cartItems = JSON.parse(cartContent);
 
+
+
+/*
 // Fonction pour enregistrer le panier dans le localStorage
 
 function saveCart(cart){
@@ -74,4 +79,4 @@ function getTotalPrice(){
         total += product.quantity * product.price;
     }
     return total;
-}
+}*/
