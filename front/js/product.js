@@ -34,19 +34,21 @@ fetch(`http://localhost:3000/api/products/${idDuKanap}`)
     })
 
 
-
 /////////////// MISE EN PLACE DE MESSAGES D'ALERTES ET AJOUT D'INFOS DANS LE LOCALSTORAGE ///////////////
-
 
 const couleurInput = document.querySelector("#colors");
 const quantiteInput = document.querySelector("#quantity");
 const btnAjouterAuPanier = document.querySelector("#addToCart");
+const seuilInferieur = 0;
+const seuilSuperieur = 100;
+const alerteCouleurEtQuantite = "Veuillez indiquer la couleur et la quantité souhaitées";
+const alerteNombreProduitsMax = "Vous ne pouvez pas commander plus de 100 produits";
 
 btnAjouterAuPanier.addEventListener("click", (e) => {
-    if ((couleurInput.value == null || couleurInput.value === "") || (quantiteInput.value == null || quantiteInput.value === "" || quantiteInput.value <= 0)) {
-        alert("Veuillez indiquer la couleur et la quantité souhaitées")
-    } else if (quantiteInput.value > 100) {
-        alert("Vous ne pouvez pas commander plus de 100 produits")
+    if ((couleurInput.value == null || couleurInput.value === "") || (quantiteInput.value == null || quantiteInput.value === "" || quantiteInput.value <= seuilInferieur)) {
+        alert(alerteCouleurEtQuantite)
+    } else if (quantiteInput.value > seuilSuperieur) {
+        alert(alerteNombreProduitsMax)
     }
 });
 
@@ -54,12 +56,12 @@ btnAjouterAuPanier.addEventListener("click", (e) => {
 /////////////// AJOUTER LE PRODUIT ET SES CARACTÉRISTIQUES AU LOCALSTORAGE ///////////////
 
 btnAjouterAuPanier.addEventListener("click", () => {
-    if (quantiteInput.value > 0 && quantiteInput.value < 100 && couleurInput.value != undefined) { // Evénement au clic sur le bouton "Ajouter au panier"
-        ajouterAuLocalStorage();
+    if (quantiteInput.value > seuilInferieur && quantiteInput.value < seuilSuperieur && couleurInput.value != undefined) { // Evénement au clic sur le bouton "Ajouter au panier"
+        ajouterAuPanier();
     }
 });
 
-function ajouterAuLocalStorage(choixDuClient) {
+function ajouterAuPanier(/*choixDuClient*/) {
     choixDuClient = { // Objet contenant les 3 informations qui doivent figurer dans le localStorage
         kanapChoisi: idDuKanap,
         couleurChoisie: couleurInput.value,
@@ -72,27 +74,23 @@ function ajouterAuLocalStorage(choixDuClient) {
         localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
         alert("Votre sélection a bien été ajoutée au panier")
     } else { // Cas de figure si le localStorage contient au moins un élément
-        let index = 0;
         for (let v of contenuDuLocalStorage) {
-            // Cas de figure si le localStorage contient un élément avec le même ID et la même couleur
+             // Cas de figure si le localStorage contient un élément avec le même ID et la même couleur
             if (v.kanapChoisi === choixDuClient.kanapChoisi && v.couleurChoisie === choixDuClient.couleurChoisie) {
-                const nouvelleQuantite = v.quantiteChoisie += choixDuClient.quantiteChoisie
-                contenuDuLocalStorage.splice(index,1)
-                const majChoixDuClient = {
-                    majId: v.kanapChoisi,
-                    majCouleur: v.couleurChoisie,
-                    majQuantite: nouvelleQuantite
-                }
-                contenuDuLocalStorage.push(majChoixDuClient)
+                v.quantiteChoisie = v.quantiteChoisie += choixDuClient.quantiteChoisie
                 localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
-                index++;
                 break
             }   // Cas de figure si le localStorage contient un élément avec le même ID mais pas la même couleur
                 else if (v.kanapChoisi === choixDuClient.kanapChoisi && v.couleurChoisie !== choixDuClient.couleurChoisie) {
                 contenuDuLocalStorage.push(choixDuClient)
                 localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
-                index++;
                 break
+            }   else { 
+                    if(v.kanapChoisi != choixDuClient.kanapChoisi){
+                        contenuDuLocalStorage.push(choixDuClient)
+                        localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
+                    }
+                break 
             }
         }
     }
