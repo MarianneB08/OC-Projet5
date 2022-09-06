@@ -1,82 +1,84 @@
-
-const cartContent = localStorage.getItem("customerChoice");
-const cartItems = JSON.parse(cartContent);
-
+// On récupère le contenu du localStorage
+let contenuDuLocalStorage = JSON.parse(localStorage.getItem("choixDuClient"));
 
 
-/*
-// Fonction pour enregistrer le panier dans le localStorage
-
-function saveCart(cart){
-    localStorage.setItem("cart", JSON.stringify(cart));
+// On récupère les informations depuis l'API en fonction des ID contenus dans le localStorage
+for (element of contenuDuLocalStorage){
+    let kanap = element;
+    fetch(`http://localhost:3000/api/products/` + kanap.kanapChoisi)
+    .then((response) => response.json())
+    .then((produit) => {
+        let itemPanier = affichagePanier(produit, kanap);
+        const cartItems = document.getElementById("cart__items");
+        cartItems.appendChild(itemPanier);
+    })
 }
 
-// Fonction pour récupérer le contenu du localStorage
+// On initie la fonction qui affiche chaque fiche produit dans le panier
+function affichagePanier(produit, kanap) {
 
-function getCart() {
-    let cart = localStorage.getItem("cart");
-    if(cart == null){
-        return [];
-    }else {
-        return JSON.parse(cart);
-    }
+    let cartItemArticle = document.createElement("article");
+    cartItemArticle.classList.add("cart__item");
+    cartItemArticle.setAttribute("data-id", kanap.kanapChoisi);
+    cartItemArticle.setAttribute("data-color", kanap.couleurChoisie);
+
+    let cartImgDiv = document.createElement("div");
+    cartImgDiv.classList.add("cart__item__img");
+    cartItemArticle.appendChild(cartImgDiv);
+
+    let cartImg = document.createElement("img");
+    cartImg.setAttribute("src", produit.imageUrl);
+    cartImg.setAttribute("alt", produit.altTxt);
+    cartImgDiv.appendChild(cartImg);
+
+    let cartItemContent = document.createElement("div");
+    cartItemContent.classList.add("cart__item__content");
+    cartItemArticle.appendChild(cartItemContent);
+
+    let cartItemContentDescription = document.createElement("div");
+    cartItemContentDescription.classList.add("cart__item__content__description");
+    cartItemContent.appendChild(cartItemContentDescription);
+
+    let nomProduit = document.createElement("h2");
+    nomProduit.textContent = produit.name;
+    cartItemContentDescription.appendChild(nomProduit);
+
+    let couleurProduit = document.createElement("p");
+    couleurProduit.textContent = kanap.couleurChoisie;
+    cartItemContentDescription.appendChild(couleurProduit);
+
+    let prixProduit = document.createElement("p");
+    prixProduit.textContent = produit.price + " €";
+    cartItemContentDescription.appendChild(prixProduit);
+
+    let cartItemContentSettings = document.createElement("div");
+    cartItemContentSettings.classList.add("cart__item__content__settings");
+    cartItemContent.appendChild(cartItemContentSettings);
+
+    let cartItemContentSettingsQuantity = document.createElement("div");
+    cartItemContentSettingsQuantity.classList.add("cart__item__content__settings__quantity");
+    cartItemContentSettings.appendChild(cartItemContentSettingsQuantity);
+
+    let quantity = document.createElement("p");
+    quantity.textContent = "Qté : ";
+    cartItemContentSettingsQuantity.appendChild(quantity);
+
+    let itemQuantity = document.createElement("input");
+    itemQuantity.setAttribute("type", "number");
+    itemQuantity.classList.add("itemQuantity");
+    itemQuantity.setAttribute("name", "itemQuantity");
+    itemQuantity.setAttribute("min", "1");
+    itemQuantity.setAttribute("max", "100");
+    itemQuantity.setAttribute("value", kanap.quantiteChoisie);
+    cartItemContentSettingsQuantity.appendChild(itemQuantity);
+
+    let cartItemDelete = document.createElement("div");
+    cartItemDelete.classList.add("cart__item__content__settings__delete");
+    cartItemContentSettings.appendChild(cartItemDelete);
+
+    let btnDelete = document.createElement("p");
+    btnDelete.classList.add("deleteItem");
+    btnDelete.textContent = "Supprimer";
+
+    return cartItemArticle;
 }
-
-// Fonction d'ajout au panier
-
-function addCart(product) {
-    let cart = getCart(); // On récupère le panier qui existe dans le localStorage
-    let foundProduct = cart.find(p => p.id == product.id) // On cherche dans le panier s'il existe déjà un produit dont l'ID correspond à l'ID du produit qu'on veut ajouter
-    if (foundProduct != undefined) {
-        foundProduct.quantity++
-    }else{
-        product.quantity = 1;
-        cart.push(product); // Ajout du produit au panier
-    }
-    saveCart(cart); // On enregistre le nouveau panier après l'ajout du produit
-}
-
-// Fonction pour supprimer un produit du panier
-
-function removeFromCart(product) {
-    let cart = getCart();
-    cart = cart.filter(p => p.id != product.id);
-    saveCart(cart);
-}
-
-// Changer la quantité d'un produit 
-
-function changeQuantity(product, quantity){
-    let cart = getCart();
-    let foundProduct = cart.find(p => p.id == product.id);
-    if (foundProduct != undefined) {
-        foundProduct.quantity += quantity;
-        if(foundProduct.quantity <= 0) {
-            removeFromCart(foundProduct);
-        }else {
-            saveCart(cart);
-        }
-    }
-}
-
-// Calcul du nombre de produits dans le panier
-
-function getNumberProduct(){
-    let cart = getCart();
-    let number = 0;
-    for (let product of cart) {
-        number += product.quantity;
-    }
-    return number;
-}
-
-// Calcul du prix total du panier
-
-function getTotalPrice(){
-    let cart = getCart();
-    let total = 0;
-    for (let product of cart){
-        total += product.quantity * product.price;
-    }
-    return total;
-}*/

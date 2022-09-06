@@ -55,13 +55,13 @@ btnAjouterAuPanier.addEventListener("click", (e) => {
 
 /////////////// AJOUTER LE PRODUIT ET SES CARACTÉRISTIQUES AU LOCALSTORAGE ///////////////
 
-btnAjouterAuPanier.addEventListener("click", () => {
-    if (quantiteInput.value > seuilInferieur && quantiteInput.value < seuilSuperieur && couleurInput.value != undefined) { // Evénement au clic sur le bouton "Ajouter au panier"
+btnAjouterAuPanier.addEventListener("click", () => { // Evénement au clic sur le bouton "Ajouter au panier"
+    if (quantiteInput.value > seuilInferieur && quantiteInput.value < seuilSuperieur && couleurInput.value != undefined) {
         ajouterAuPanier();
     }
 });
 
-function ajouterAuPanier(/*choixDuClient*/) {
+function ajouterAuPanier() {
     choixDuClient = { // Objet contenant les 3 informations qui doivent figurer dans le localStorage
         kanapChoisi: idDuKanap,
         couleurChoisie: couleurInput.value,
