@@ -22,6 +22,7 @@ function affichagePanier(produit, kanap) {
     cartItemArticle.setAttribute("data-id", kanap.kanapChoisi);
     cartItemArticle.setAttribute("data-color", kanap.couleurChoisie);
 
+    // Affichage de la photo du produit
     let cartImgDiv = document.createElement("div");
     cartImgDiv.classList.add("cart__item__img");
     cartItemArticle.appendChild(cartImgDiv);
@@ -39,14 +40,17 @@ function affichagePanier(produit, kanap) {
     cartItemContentDescription.classList.add("cart__item__content__description");
     cartItemContent.appendChild(cartItemContentDescription);
 
+    // Affichage du nom du produit
     let nomProduit = document.createElement("h2");
     nomProduit.textContent = produit.name;
     cartItemContentDescription.appendChild(nomProduit);
 
+    // Affichage de la couleur du produit
     let couleurProduit = document.createElement("p");
     couleurProduit.textContent = kanap.couleurChoisie;
     cartItemContentDescription.appendChild(couleurProduit);
 
+    // Affichage du prix du produit
     let prixProduit = document.createElement("p");
     prixProduit.textContent = produit.price + " €";
     cartItemContentDescription.appendChild(prixProduit);
@@ -59,6 +63,7 @@ function affichagePanier(produit, kanap) {
     cartItemContentSettingsQuantity.classList.add("cart__item__content__settings__quantity");
     cartItemContentSettings.appendChild(cartItemContentSettingsQuantity);
 
+    // Affichage de l'input pour changer la quantité souhaitée du produit
     let quantity = document.createElement("p");
     quantity.textContent = "Qté : ";
     cartItemContentSettingsQuantity.appendChild(quantity);
@@ -76,9 +81,11 @@ function affichagePanier(produit, kanap) {
     cartItemDelete.classList.add("cart__item__content__settings__delete");
     cartItemContentSettings.appendChild(cartItemDelete);
 
+    // Affichage du bouton "Supprimer"
     let btnDelete = document.createElement("p");
     btnDelete.classList.add("deleteItem");
     btnDelete.textContent = "Supprimer";
+    cartItemDelete.appendChild(btnDelete);
 
     return cartItemArticle;
 }
