@@ -69,7 +69,7 @@ function ajouterAuPanier() {
     }
     let contenuDuLocalStorage = JSON.parse(localStorage.getItem("choixDuClient"))
     if (contenuDuLocalStorage === null) { // Cas de figure si le localStorage est vide
-        contenuDuLocalStorage = []
+        contenuDuLocalStorage = [];
         contenuDuLocalStorage.push(choixDuClient)
         localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
         alert("Votre sélection a bien été ajoutée au panier")
@@ -79,11 +79,13 @@ function ajouterAuPanier() {
             if (v.kanapChoisi === choixDuClient.kanapChoisi && v.couleurChoisie === choixDuClient.couleurChoisie) {
                 v.quantiteChoisie = v.quantiteChoisie += choixDuClient.quantiteChoisie
                 localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
+                alert("Votre sélection a bien été ajoutée au panier")
                 break
             }   // Cas de figure si le localStorage contient un élément avec le même ID mais pas la même couleur
                 else if (v.kanapChoisi === choixDuClient.kanapChoisi && v.couleurChoisie !== choixDuClient.couleurChoisie) {
                 contenuDuLocalStorage.push(choixDuClient)
                 localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage))
+                alert("Votre sélection a bien été ajoutée au panier")
                 break
             }   else { 
                     if(v.kanapChoisi != choixDuClient.kanapChoisi){

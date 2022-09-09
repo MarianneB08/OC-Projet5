@@ -1,18 +1,23 @@
 // On récupère le contenu du localStorage
 let contenuDuLocalStorage = JSON.parse(localStorage.getItem("choixDuClient"));
 
+// Variables globales
+const prixProduitsAPI = [];
 
 // On récupère les informations depuis l'API en fonction des ID contenus dans le localStorage
-for (element of contenuDuLocalStorage){
+for (element of contenuDuLocalStorage) {
     let kanap = element;
-    fetch(`http://localhost:3000/api/products/` + kanap.kanapChoisi)
-    .then((response) => response.json())
-    .then((produit) => {
-        let itemPanier = affichagePanier(produit, kanap);
-        const cartItems = document.getElementById("cart__items");
-        cartItems.appendChild(itemPanier);
-    })
+    fetch(`http://localhost:3000/api/products/${kanap.kanapChoisi}`)
+        .then((response) => response.json())
+        .then((produit) => {
+            prixProduitsAPI.push(produit.price * kanap.quantiteChoisie);
+            let itemPanier = affichagePanier(produit, kanap);
+            const cartItems = document.getElementById("cart__items");
+            cartItems.appendChild(itemPanier);
+            afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI);
+        })
 }
+
 
 // On initie la fonction qui affiche chaque fiche produit dans le panier
 function affichagePanier(produit, kanap) {
@@ -52,7 +57,7 @@ function affichagePanier(produit, kanap) {
 
     // Affichage du prix du produit
     let prixProduit = document.createElement("p");
-    prixProduit.textContent = produit.price + " €";
+    prixProduit.textContent = (produit.price * kanap.quantiteChoisie) + " €";
     cartItemContentDescription.appendChild(prixProduit);
 
     let cartItemContentSettings = document.createElement("div");
@@ -88,4 +93,24 @@ function affichagePanier(produit, kanap) {
     cartItemDelete.appendChild(btnDelete);
 
     return cartItemArticle;
+}
+
+// Affichage du nombre total d'articles et du prix total du panier
+function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
+    let quantiteAffichee = contenuDuLocalStorage.map(contenuDuLocalStorage => contenuDuLocalStorage.quantiteChoisie);
+    const sommeQuantites = quantiteAffichee.reduce(
+        (sum, currentQuantite) => {
+            return sum += currentQuantite
+        }
+    )
+    let totalArticles = document.getElementById('totalQuantity');
+    totalArticles.innerHTML = sommeQuantites;
+
+    const sommePrix = prixProduitsAPI.reduce(
+        (sum, currentPrix) => {
+            return sum += currentPrix
+        }
+    )
+    let totalPrix = document.getElementById('totalPrice');
+    totalPrix.innerHTML = sommePrix;
 }
