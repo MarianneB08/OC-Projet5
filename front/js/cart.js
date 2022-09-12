@@ -91,6 +91,10 @@ function affichagePanier(produit, kanap) {
     btnDelete.classList.add("deleteItem");
     btnDelete.textContent = "Supprimer";
     cartItemDelete.appendChild(btnDelete);
+    btnDelete.addEventListener("click", (e) => {
+        btnSuppression(e);
+        afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI);
+    })
 
     return cartItemArticle;
 }
@@ -113,4 +117,26 @@ function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
     )
     let totalPrix = document.getElementById('totalPrice');
     totalPrix.innerHTML = sommePrix;
+}
+
+
+// Suppression avec le bouton "Supprimer"
+
+function btnSuppression(e) {
+    let produit_a_supprimer = e.target.closest('[data-id]');
+
+    let indexDuProduitASupprimer = contenuDuLocalStorage.findIndex((contenuDuLocalStorage) => 
+    contenuDuLocalStorage.kanapChoisi == produit_a_supprimer.dataset.id &&
+    contenuDuLocalStorage.couleurChoisie == produit_a_supprimer.dataset.color);
+
+    if (produit_a_supprimer._id == contenuDuLocalStorage.kanapChoisi) {
+        produit_a_supprimer.remove();
+        contenuDuLocalStorage.splice(indexDuProduitASupprimer, 1);
+        localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage));
+        window.location.reload();
+        if (contenuDuLocalStorage == 0 || contenuDuLocalStorage === null) {
+            localStorage.clear();
+        }
+    }
+    
 }
