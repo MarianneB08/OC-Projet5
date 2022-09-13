@@ -2,6 +2,7 @@
 
 // On récupère l'id du produit dans l'url de la page produit
 
+const urlGlobale = "http://localhost:3000/api/products/";
 const url = window.location.href;
 const urlDuKanap = new URL(url);
 let idDuKanap = "";
@@ -13,7 +14,7 @@ if (search_params.has('id')) {
 
 // On appelle l'API pour récupérer les caractéristiques du produit
 
-fetch(`http://localhost:3000/api/products/${idDuKanap}`)
+fetch(`${urlGlobale}${idDuKanap}`)
     .then(function (reponse) {
         return reponse.json();
     })

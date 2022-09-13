@@ -1,9 +1,10 @@
 /////////////// AFFICHER LES PRODUITS SUR LA PAGE D'ACCUEIL ///////////////
 
+let url = "http://localhost:3000/api/products"
 let produits = [];
 
 // Récupération des données de l'API
-fetch("http://localhost:3000/api/products")
+fetch(`${url}`)
     .then(function (response) {
         return response.json();
     })

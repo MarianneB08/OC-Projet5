@@ -1,13 +1,37 @@
 // On récupère le contenu du localStorage
 let contenuDuLocalStorage = JSON.parse(localStorage.getItem("choixDuClient"));
+let url = "http://localhost:3000/api/products/";
 
 // Variables globales
 const prixProduitsAPI = [];
+let totalArticles = document.getElementById('totalQuantity');
+let totalPrix = document.getElementById('totalPrice');
+let modifPluriel = document.querySelector(".cart__price p");
+let modifSingulier = document.createElement("p");
+let parentModifSingulier = document.querySelector(".cart__price");
+let sommeQuantites;
+let sommePrix;
+
+
+// Accord au singulier du mot "Articles" si le nombre de produits est inférieur à 2
+function accordSingulier(sommeQuantites, sommePrix) {
+    modifPluriel.remove();
+    modifSingulier.innerHTML += `Total (<span>${sommeQuantites}</span> article) : <span id="totalPrice">${sommePrix}</span> €`;
+    parentModifSingulier.appendChild(modifSingulier);
+}
+
+// Affichage des totaux de la page lorsque le panier est vide
+if(contenuDuLocalStorage === null || contenuDuLocalStorage == 0){
+    totalArticles.innerHTML = "0";
+    totalPrix.innerHTML = "0";
+    document.querySelector("h1").innerHTML = "Votre panier est vide";
+    accordSingulier(0, 0);
+}
 
 // On récupère les informations depuis l'API en fonction des ID contenus dans le localStorage
 for (element of contenuDuLocalStorage) {
     let kanap = element;
-    fetch(`http://localhost:3000/api/products/${kanap.kanapChoisi}`)
+    fetch(`${url}${kanap.kanapChoisi}`)
         .then((response) => response.json())
         .then((produit) => {
             prixProduitsAPI.push(produit.price * kanap.quantiteChoisie);
@@ -91,7 +115,7 @@ function affichagePanier(produit, kanap) {
     btnDelete.classList.add("deleteItem");
     btnDelete.textContent = "Supprimer";
     cartItemDelete.appendChild(btnDelete);
-    btnDelete.addEventListener("click", (e) => {
+    btnDelete.addEventListener("click", (e) => { // Écoute du clic sur le bouton "Supprimer"
         btnSuppression(e);
         afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI);
     })
@@ -102,21 +126,25 @@ function affichagePanier(produit, kanap) {
 // Affichage du nombre total d'articles et du prix total du panier
 function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
     let quantiteAffichee = contenuDuLocalStorage.map(contenuDuLocalStorage => contenuDuLocalStorage.quantiteChoisie);
-    const sommeQuantites = quantiteAffichee.reduce(
+
+    sommeQuantites = quantiteAffichee.reduce(
         (sum, currentQuantite) => {
             return sum += currentQuantite
         }
     )
-    let totalArticles = document.getElementById('totalQuantity');
-    totalArticles.innerHTML = sommeQuantites;
+    totalArticles.innerHTML += sommeQuantites;
 
-    const sommePrix = prixProduitsAPI.reduce(
+    sommePrix = prixProduitsAPI.reduce(
         (sum, currentPrix) => {
             return sum += currentPrix
         }
     )
-    let totalPrix = document.getElementById('totalPrice');
-    totalPrix.innerHTML = sommePrix;
+    totalPrix.innerHTML += sommePrix;
+    
+    // Accord au singulier du mot "Articles"
+    if (sommeQuantites < 2) { 
+        accordSingulier(sommeQuantites, sommePrix);
+    }
 }
 
 
@@ -125,9 +153,9 @@ function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
 function btnSuppression(e) {
     let produit_a_supprimer = e.target.closest('[data-id]');
 
-    let indexDuProduitASupprimer = contenuDuLocalStorage.findIndex((contenuDuLocalStorage) => 
-    contenuDuLocalStorage.kanapChoisi == produit_a_supprimer.dataset.id &&
-    contenuDuLocalStorage.couleurChoisie == produit_a_supprimer.dataset.color);
+    let indexDuProduitASupprimer = contenuDuLocalStorage.findIndex((contenuDuLocalStorage) =>
+        contenuDuLocalStorage.kanapChoisi == produit_a_supprimer.dataset.id &&
+        contenuDuLocalStorage.couleurChoisie == produit_a_supprimer.dataset.color);
 
     if (produit_a_supprimer._id == contenuDuLocalStorage.kanapChoisi) {
         produit_a_supprimer.remove();
@@ -136,7 +164,8 @@ function btnSuppression(e) {
         window.location.reload();
         if (contenuDuLocalStorage == 0 || contenuDuLocalStorage === null) {
             localStorage.clear();
+            alert("Votre panier est vide");
         }
     }
-    
 }
+
