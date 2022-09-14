@@ -21,12 +21,56 @@ function accordSingulier(sommeQuantites, sommePrix) {
 }
 
 // Affichage des totaux de la page lorsque le panier est vide
-if(contenuDuLocalStorage === null || contenuDuLocalStorage == 0){
+if (contenuDuLocalStorage === null || contenuDuLocalStorage == 0) {
     totalArticles.innerHTML = "0";
     totalPrix.innerHTML = "0";
     document.querySelector("h1").innerHTML = "Votre panier est vide";
     accordSingulier(0, 0);
 }
+
+// Bouton Commander
+
+let btnCommander = document.querySelector("#order");
+btnCommander.addEventListener("click", (e) => {
+    e.preventDefault();
+    envoiDuFormulaire();
+})
+
+// Soumission du formulaire
+
+function envoiDuFormulaire() {
+    if (prixProduitsAPI.length === 0) {
+        alert("Votre panier est vide ! Vous ne pouvez pas passer commande.");
+    }
+    //const formulaire = document.querySelector(".cart__order__form");
+    const body = requeteBody();
+    const stringifiedBody = JSON.stringify(body);
+    fetch(`${url}/order`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: stringifiedBody
+    })
+        .then((res) => res.json())
+        .then((data) => console.log(data))
+}
+
+function requeteBody() {
+    const body = {
+        contact: {
+            firstName: "blabla",
+            lastName: "blabla",
+            address: "blabla",
+            city: "blabla",
+            email: "blabla"
+        },
+        products: ["107fb5b75607497b96722bda5b504926"]
+    }
+    return body;
+}
+
+
 
 // On récupère les informations depuis l'API en fonction des ID contenus dans le localStorage
 for (element of contenuDuLocalStorage) {
@@ -41,6 +85,7 @@ for (element of contenuDuLocalStorage) {
             afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI);
         })
 }
+
 
 
 // On initie la fonction qui affiche chaque fiche produit dans le panier
@@ -76,12 +121,12 @@ function affichagePanier(produit, kanap) {
 
     // Affichage de la couleur du produit
     let couleurProduit = document.createElement("p");
-    couleurProduit.textContent = kanap.couleurChoisie;
+    couleurProduit.textContent = `Couleur : ${kanap.couleurChoisie}`;
     cartItemContentDescription.appendChild(couleurProduit);
 
     // Affichage du prix du produit
     let prixProduit = document.createElement("p");
-    prixProduit.textContent = (produit.price * kanap.quantiteChoisie) + " €";
+    prixProduit.textContent = `Prix total : ${produit.price * kanap.quantiteChoisie} €`;
     cartItemContentDescription.appendChild(prixProduit);
 
     let cartItemContentSettings = document.createElement("div");
@@ -105,17 +150,30 @@ function affichagePanier(produit, kanap) {
     itemQuantity.setAttribute("max", "100");
     itemQuantity.setAttribute("value", kanap.quantiteChoisie);
     cartItemContentSettingsQuantity.appendChild(itemQuantity);
+    itemQuantity.addEventListener("change", (e) => {
+        modifierQuantite(e);
+        window.location.reload();
+    })
 
     let cartItemDelete = document.createElement("div");
     cartItemDelete.classList.add("cart__item__content__settings__delete");
     cartItemContentSettings.appendChild(cartItemDelete);
 
     // Affichage du bouton "Supprimer"
-    let btnDelete = document.createElement("p");
+    let btnDelete = document.createElement("button");
     btnDelete.classList.add("deleteItem");
     btnDelete.textContent = "Supprimer";
+    btnDelete.style.marginTop = "20px";
+    btnDelete.style.fontSize = "14px";
+    btnDelete.style.borderRadius = "30px";
+    btnDelete.style.boxShadow = "none";
+    btnDelete.style.background = "white";
+    btnDelete.style.border = "2px black";
+    btnDelete.style.padding = "7px";
+    btnDelete.style.fontFamily = "Montserrat";
+    btnDelete.style.cursor = "pointer";
     cartItemDelete.appendChild(btnDelete);
-    btnDelete.addEventListener("click", (e) => { // Écoute du clic sur le bouton "Supprimer"
+    btnDelete.addEventListener("click", (e) => {
         btnSuppression(e);
         afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI);
     })
@@ -129,22 +187,31 @@ function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
 
     sommeQuantites = quantiteAffichee.reduce(
         (sum, currentQuantite) => {
-            return sum += currentQuantite
+            return sum + currentQuantite
         }
     )
-    totalArticles.innerHTML += sommeQuantites;
+    totalArticles.innerHTML = sommeQuantites;
 
     sommePrix = prixProduitsAPI.reduce(
         (sum, currentPrix) => {
-            return sum += currentPrix
+            return sum + currentPrix
         }
     )
-    totalPrix.innerHTML += sommePrix;
-    
-    // Accord au singulier du mot "Articles"
-    if (sommeQuantites < 2) { 
+    totalPrix.innerHTML = sommePrix;
+
+    if (sommeQuantites < 2) {
         accordSingulier(sommeQuantites, sommePrix);
     }
+}
+
+// Modification de la quantité de chaque produit par l'intermédiaire de l'input 
+function modifierQuantite(e) {
+    let produitCible = e.target.closest("article");
+    let quantiteProduit = e.target.closest(".itemQuantity");
+    let rechercheProduit = contenuDuLocalStorage.find(kanap => kanap.kanapChoisi == produitCible.dataset.id && kanap.couleurChoisie == produitCible.dataset.color);
+    let nouvelleQuantite = parseInt(quantiteProduit.value);
+    rechercheProduit.quantiteChoisie = nouvelleQuantite;
+    localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage));
 }
 
 
@@ -168,4 +235,3 @@ function btnSuppression(e) {
         }
     }
 }
-

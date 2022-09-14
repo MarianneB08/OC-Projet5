@@ -50,6 +50,7 @@ btnAjouterAuPanier.addEventListener("click", (e) => {
         alert(alerteCouleurEtQuantite)
     } else if (quantiteInput.value > seuilSuperieur) {
         alert(alerteNombreProduitsMax)
+        quantiteInput.value = 0;
     }
 });
 
