@@ -1,8 +1,10 @@
+/////////////// AFFICHAGE DU CONTENU DU PANIER ///////////////
+
 // On récupère le contenu du localStorage
-let contenuDuLocalStorage = JSON.parse(localStorage.getItem("choixDuClient"));
-let url = "http://localhost:3000/api/products/";
+let contenuLocalStorage = JSON.parse(localStorage.getItem("choixClient"));
 
 // Variables globales
+let url = "http://localhost:3000/api/products/";
 const prixProduitsAPI = [];
 let totalArticles = document.getElementById('totalQuantity');
 let totalPrix = document.getElementById('totalPrice');
@@ -11,9 +13,10 @@ let modifSingulier = document.createElement("p");
 let parentModifSingulier = document.querySelector(".cart__price");
 let sommeQuantites;
 let sommePrix;
+const formulaire = document.querySelector(".cart__order__form");
 
 
-// Accord au singulier du mot "Articles" si le nombre de produits est inférieur à 2
+// Fonction pour accorder au singulier du mot "Articles" si le nombre de produits est inférieur à 2
 function accordSingulier(sommeQuantites, sommePrix) {
     modifPluriel.remove();
     modifSingulier.innerHTML += `Total (<span>${sommeQuantites}</span> article) : <span id="totalPrice">${sommePrix}</span> €`;
@@ -21,59 +24,13 @@ function accordSingulier(sommeQuantites, sommePrix) {
 }
 
 // Affichage des totaux de la page lorsque le panier est vide
-if (contenuDuLocalStorage === null || contenuDuLocalStorage == 0) {
-    totalArticles.innerHTML = "0";
-    totalPrix.innerHTML = "0";
+if (contenuLocalStorage === null || contenuLocalStorage == 0) {
     document.querySelector("h1").innerHTML = "Votre panier est vide";
     accordSingulier(0, 0);
 }
 
-// Bouton Commander
-
-let btnCommander = document.querySelector("#order");
-btnCommander.addEventListener("click", (e) => {
-    e.preventDefault();
-    envoiDuFormulaire();
-})
-
-// Soumission du formulaire
-
-function envoiDuFormulaire() {
-    if (prixProduitsAPI.length === 0) {
-        alert("Votre panier est vide ! Vous ne pouvez pas passer commande.");
-    }
-    //const formulaire = document.querySelector(".cart__order__form");
-    const body = requeteBody();
-    const stringifiedBody = JSON.stringify(body);
-    fetch(`${url}/order`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: stringifiedBody
-    })
-        .then((res) => res.json())
-        .then((data) => console.log(data))
-}
-
-function requeteBody() {
-    const body = {
-        contact: {
-            firstName: "blabla",
-            lastName: "blabla",
-            address: "blabla",
-            city: "blabla",
-            email: "blabla"
-        },
-        products: ["107fb5b75607497b96722bda5b504926"]
-    }
-    return body;
-}
-
-
-
 // On récupère les informations depuis l'API en fonction des ID contenus dans le localStorage
-for (element of contenuDuLocalStorage) {
+for (element of contenuLocalStorage) {
     let kanap = element;
     fetch(`${url}${kanap.kanapChoisi}`)
         .then((response) => response.json())
@@ -82,10 +39,12 @@ for (element of contenuDuLocalStorage) {
             let itemPanier = affichagePanier(produit, kanap);
             const cartItems = document.getElementById("cart__items");
             cartItems.appendChild(itemPanier);
-            afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI);
+            afficherTotalArticlesEtPrix(contenuLocalStorage, prixProduitsAPI);
+        })
+        .catch((erreur) => {
+            alert("Aucune information trouvée dans l'API");
         })
 }
-
 
 
 // On initie la fonction qui affiche chaque fiche produit dans le panier
@@ -159,7 +118,7 @@ function affichagePanier(produit, kanap) {
     cartItemDelete.classList.add("cart__item__content__settings__delete");
     cartItemContentSettings.appendChild(cartItemDelete);
 
-    // Affichage du bouton "Supprimer"
+    // Affichage et styles du bouton "Supprimer"
     let btnDelete = document.createElement("button");
     btnDelete.classList.add("deleteItem");
     btnDelete.textContent = "Supprimer";
@@ -175,15 +134,14 @@ function affichagePanier(produit, kanap) {
     cartItemDelete.appendChild(btnDelete);
     btnDelete.addEventListener("click", (e) => {
         btnSuppression(e);
-        afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI);
+        afficherTotalArticlesEtPrix(contenuLocalStorage, prixProduitsAPI);
     })
-
     return cartItemArticle;
 }
 
 // Affichage du nombre total d'articles et du prix total du panier
-function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
-    let quantiteAffichee = contenuDuLocalStorage.map(contenuDuLocalStorage => contenuDuLocalStorage.quantiteChoisie);
+function afficherTotalArticlesEtPrix(contenuLocalStorage, prixProduitsAPI) {
+    let quantiteAffichee = contenuLocalStorage.map(contenuLocalStorage => contenuLocalStorage.quantiteChoisie);
 
     sommeQuantites = quantiteAffichee.reduce(
         (sum, currentQuantite) => {
@@ -199,7 +157,7 @@ function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
     )
     totalPrix.innerHTML = sommePrix;
 
-    if (sommeQuantites < 2) {
+    if (sommeQuantites < 2) { // Accord du mot "Articles" au singulier lorsque le panier contient moins de 2 produits
         accordSingulier(sommeQuantites, sommePrix);
     }
 }
@@ -208,30 +166,145 @@ function afficherTotalArticlesEtPrix(contenuDuLocalStorage, prixProduitsAPI) {
 function modifierQuantite(e) {
     let produitCible = e.target.closest("article");
     let quantiteProduit = e.target.closest(".itemQuantity");
-    let rechercheProduit = contenuDuLocalStorage.find(kanap => kanap.kanapChoisi == produitCible.dataset.id && kanap.couleurChoisie == produitCible.dataset.color);
+    let rechercheProduit = contenuLocalStorage.find(kanap => kanap.kanapChoisi == produitCible.dataset.id && kanap.couleurChoisie == produitCible.dataset.color);
     let nouvelleQuantite = parseInt(quantiteProduit.value);
     rechercheProduit.quantiteChoisie = nouvelleQuantite;
-    localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage));
+    localStorage.setItem("choixClient", JSON.stringify(contenuLocalStorage));
 }
-
 
 // Suppression avec le bouton "Supprimer"
 
 function btnSuppression(e) {
     let produit_a_supprimer = e.target.closest('[data-id]');
 
-    let indexDuProduitASupprimer = contenuDuLocalStorage.findIndex((contenuDuLocalStorage) =>
-        contenuDuLocalStorage.kanapChoisi == produit_a_supprimer.dataset.id &&
-        contenuDuLocalStorage.couleurChoisie == produit_a_supprimer.dataset.color);
+    let indexDuProduitASupprimer = contenuLocalStorage.findIndex((contenuLocalStorage) =>
+        contenuLocalStorage.kanapChoisi == produit_a_supprimer.dataset.id &&
+        contenuLocalStorage.couleurChoisie == produit_a_supprimer.dataset.color);
 
-    if (produit_a_supprimer._id == contenuDuLocalStorage.kanapChoisi) {
+    if (produit_a_supprimer._id == contenuLocalStorage.kanapChoisi) {
         produit_a_supprimer.remove();
-        contenuDuLocalStorage.splice(indexDuProduitASupprimer, 1);
-        localStorage.setItem("choixDuClient", JSON.stringify(contenuDuLocalStorage));
+        contenuLocalStorage.splice(indexDuProduitASupprimer, 1);
+        localStorage.setItem("choixClient", JSON.stringify(contenuLocalStorage));
         window.location.reload();
-        if (contenuDuLocalStorage == 0 || contenuDuLocalStorage === null) {
+        if (contenuLocalStorage == 0 || contenuLocalStorage === null) {
             localStorage.clear();
             alert("Votre panier est vide");
         }
     }
 }
+
+// Définition des expressions régulières pour vérifier le contenu des inputs du formulaire
+let emailRegExp = new RegExp(/^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/);
+let texteRegExp = new RegExp(/^[a-zéèçàA-Z0-9.-_ ]{2,50}$/);
+
+// Fonction de vérification des inputs Prénom, Nom, Adresse et Ville du formulaire
+function validationInputTexte(inputTexte) {
+    let inputTexteMessageErreur = inputTexte.nextElementSibling;
+
+    if (texteRegExp.test(inputTexte.value)) {
+        inputTexteMessageErreur.textContent = "";
+        return true;
+    } else {
+        inputTexteMessageErreur.textContent = "Saisie non valide";
+        return false;
+    }
+}
+
+// Fonction de vérification de l'input Email du formulaire
+function validationInputEmail(inputEmail) {
+    let inputEmailMessageErreur = inputEmail.nextElementSibling;
+
+    if (emailRegExp.test(inputEmail.value)) {
+        inputEmailMessageErreur.textContent = "";
+        return true;
+    } else {
+        inputEmailMessageErreur.textContent = "Adresse e-mail non valide";
+        return false;
+    }
+}
+
+// Écoute et comparaison des différents inputs du formulaire avec les RegExp
+formulaire.firstName.addEventListener("change", function () {
+    validationInputTexte(this);
+})
+
+formulaire.lastName.addEventListener("change", function () {
+    validationInputTexte(this);
+})
+
+formulaire.address.addEventListener("change", function () {
+    validationInputTexte(this);
+})
+
+formulaire.city.addEventListener("change", function () {
+    validationInputTexte(this);
+})
+
+formulaire.email.addEventListener("change", function () {
+    validationInputEmail(this);
+})
+
+// Écoute du bouton "Commander !" et conséquences du clic
+formulaire.order.addEventListener("click", (e) => {
+    e.preventDefault(); // Empêche le rechargement automatique de la page au clic
+
+    if (prixProduitsAPI.length === 0) { // Alerte dans le cas où le client clique alors que le panier est vide
+        alert("Votre panier est vide ! Vous ne pouvez pas passer commande.");
+        return
+    }
+    // Cas de figure dans lequel tous les inputs sont correctement remplis
+    else if (validationInputTexte(formulaire.firstName) &&
+        validationInputTexte(formulaire.lastName) &&
+        validationInputTexte(formulaire.address) &&
+        validationInputTexte(formulaire.city) &&
+        validationInputEmail(formulaire.email)
+    ) {
+        const body = requeteBody();
+        const stringifiedBody = JSON.stringify(body);
+        
+        // Mise en place de la route POST pour envoyer la commande et les informations saisies dans le formulaire à l'API
+        fetch(`${url}/order`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: stringifiedBody
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log(data.orderId);
+                localStorage.clear();
+                document.location.href = `./confirmation.html?orderId=${data.orderId}`;
+            })
+            .catch(function (error) {
+                alert("Aucune information trouvée à partir de l'API");
+            })
+    } else {
+        alert("Le formulaire est incorrect ou incomplet");
+    }
+
+    function requeteBody() {
+        const prenom = formulaire.firstName.value;
+        const nom = formulaire.lastName.value;
+        const adresse = formulaire.address.value;
+        const ville = formulaire.city.value;
+        const email = formulaire.email.value;
+
+        let idProduit = [];
+        for (let i = 0; i < contenuLocalStorage.length; i++) {
+            idProduit.push(contenuLocalStorage[i].kanapChoisi);
+        }
+
+        const body = {
+            contact: {
+                firstName: prenom,
+                lastName: nom,
+                address: adresse,
+                city: ville,
+                email: email
+            },
+            products: idProduit
+        }
+        return body
+    }
+})
