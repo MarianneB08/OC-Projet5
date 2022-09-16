@@ -15,6 +15,9 @@ let sommeQuantites;
 let sommePrix;
 const formulaire = document.querySelector(".cart__order__form");
 
+// Modification de la balise meta title de la page 
+
+document.title = "Panier";
 
 // Fonction pour accorder au singulier du mot "Articles" si le nombre de produits est inférieur à 2
 function accordSingulier(sommeQuantites, sommePrix) {

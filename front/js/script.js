@@ -2,6 +2,9 @@
 
 const url = "http://localhost:3000/api/products";
 
+// Modification de la balise meta title de la page d'accueil
+document.title = "Kanap - Accueil";
+
 // Récupération des données de l'API
 fetch(`${url}`)
   .then(function (reponse) {
