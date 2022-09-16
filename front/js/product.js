@@ -38,6 +38,7 @@ fetch(`${urlGlobale}${idKanap}`)
             document.querySelector('#price').innerHTML = (infosKanap, listeKanap.price);
             document.querySelector('#description').innerHTML = (infosKanap, listeKanap.description);
             document.querySelector('.item__img').innerHTML = `<img src="${(infosKanap, listeKanap.imageUrl)}" alt="${infosKanap, listeKanap.altTxt}">`;
+            document.title = (infosKanap, listeKanap.name);
         }
         const tableauCouleurs = listeKanap.colors;
         for (let couleur of tableauCouleurs) {
