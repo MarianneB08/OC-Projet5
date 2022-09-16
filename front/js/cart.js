@@ -272,8 +272,8 @@ formulaire.order.addEventListener("click", (e) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data.orderId);
-                localStorage.clear();
+                console.log(data);
+                //localStorage.clear();
                 document.location.href = `./confirmation.html?orderId=${data.orderId}`;
             })
             .catch(function (error) {
