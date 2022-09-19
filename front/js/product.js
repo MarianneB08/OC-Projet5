@@ -14,6 +14,7 @@ const seuilInferieur = 0;
 const seuilSuperieur = 100;
 const alerteCouleurEtQuantite = "Veuillez indiquer la couleur et la quantité souhaitées";
 const alerteNombreProduitsMax = "Vous ne pouvez pas commander plus de 100 produits";
+let infosKanap;
 
 // On récupère l'id du produit dans l'url de la page produit
 
@@ -30,20 +31,7 @@ fetch(`${urlGlobale}${idKanap}`)
         return reponse.json();
     })
     .then(function (listeKanap) {
-        let infosKanap;
-        for (let i in listeKanap) {
-            infosKanap = i;
-            // On injecte les caractéristiques dans la structure HTML
-            document.querySelector('#title').innerHTML = (infosKanap, listeKanap.name);
-            document.querySelector('#price').innerHTML = (infosKanap, listeKanap.price);
-            document.querySelector('#description').innerHTML = (infosKanap, listeKanap.description);
-            document.querySelector('.item__img').innerHTML = `<img src="${(infosKanap, listeKanap.imageUrl)}" alt="${infosKanap, listeKanap.altTxt}">`;
-            document.title = (infosKanap, listeKanap.name);
-        }
-        const tableauCouleurs = listeKanap.colors;
-        for (let couleur of tableauCouleurs) {
-            document.querySelector('#colors').innerHTML += `<option value="${couleur}"> ${couleur}</option>`
-        }
+        afficherProduit(listeKanap);
     })
 
 
@@ -60,6 +48,33 @@ btnAjouterAuPanier.addEventListener("click", () => {
         ajouterAuPanier();
     }
 });
+
+function afficherProduit(listeKanap) {
+    // On injecte les caractéristiques dans la structure HTML
+    let title = document.getElementById("title");
+    title.textContent = (infosKanap, listeKanap.name);
+
+    let price = document.getElementById("price");
+    price.textContent = (infosKanap, listeKanap.price);
+
+    let description = document.getElementById("description");
+    description.textContent = (infosKanap, listeKanap.description);
+
+    let imageContainer = document.querySelector(".item__img");
+    let imgKanap = document.createElement("img");
+    imgKanap.src = (infosKanap, listeKanap.imageUrl);
+    imgKanap.alt = (infosKanap, listeKanap.altTxt);
+    imageContainer.appendChild(imgKanap);
+
+    const tableauCouleurs = listeKanap.colors;
+    let select = document.getElementById("colors");
+    for (let couleur of tableauCouleurs) {
+        let option = document.createElement("option");
+        option.value = couleur;
+        option.textContent = couleur;
+        select.appendChild(option);
+    }
+}
 
 
 /////////////// AJOUT DU PRODUIT ET DE SES CARACTÉRISTIQUES AU LOCALSTORAGE ///////////////
