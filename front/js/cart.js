@@ -198,9 +198,10 @@ function btnSuppression(e) {
 
 // Définition des expressions régulières pour vérifier le contenu des inputs du formulaire
 let emailRegExp = new RegExp(/^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/);
-let texteRegExp = new RegExp(/^[a-zéèçàA-Z0-9.-_ ]{2,50}$/);
+let texteRegExp = new RegExp(/^[a-zéèçàA-Z- ]{2,50}$/);
+let adresseRegExp = new RegExp(/^[a-zéèçàA-Z0-9- ]{2,50}$/);
 
-// Fonction de vérification des inputs Prénom, Nom, Adresse et Ville du formulaire
+// Fonction de vérification des inputs Prénom, Nom et Ville du formulaire
 function validationInputTexte(inputTexte) {
     let inputTexteMessageErreur = inputTexte.nextElementSibling;
 
@@ -212,6 +213,21 @@ function validationInputTexte(inputTexte) {
         return false;
     }
 }
+
+// Fonction de vérification de l'input Adresse du formulaire
+
+function validationInputAdresse(inputAdresse) {
+    let inputAdresseMessageErreur = inputAdresse.nextElementSibling;
+
+    if (adresseRegExp.test(inputAdresse.value)) {
+        inputAdresseMessageErreur.textContent = "";
+        return true;
+    } else {
+        inputAdresseMessageErreur.textContent = "Adresse non valide";
+        return false;
+    }
+}
+
 
 // Fonction de vérification de l'input Email du formulaire
 function validationInputEmail(inputEmail) {
@@ -236,7 +252,7 @@ formulaire.lastName.addEventListener("change", function () {
 })
 
 formulaire.address.addEventListener("change", function () {
-    validationInputTexte(this);
+    validationInputAdresse(this);
 })
 
 formulaire.city.addEventListener("change", function () {
@@ -258,7 +274,7 @@ formulaire.order.addEventListener("click", (e) => {
     // Cas de figure dans lequel tous les inputs sont correctement remplis
     else if (validationInputTexte(formulaire.firstName) &&
         validationInputTexte(formulaire.lastName) &&
-        validationInputTexte(formulaire.address) &&
+        validationInputAdresse(formulaire.address) &&
         validationInputTexte(formulaire.city) &&
         validationInputEmail(formulaire.email)
     ) {
@@ -276,7 +292,7 @@ formulaire.order.addEventListener("click", (e) => {
             .then((res) => res.json())
             .then((data) => {
                 console.log(data);
-                //localStorage.clear();
+                localStorage.clear();
                 document.location.href = `./confirmation.html?orderId=${data.orderId}`;
             })
             .catch(function (error) {
