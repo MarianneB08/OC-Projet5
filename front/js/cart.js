@@ -167,12 +167,18 @@ function afficherTotalArticlesEtPrix(contenuLocalStorage, prixProduitsAPI) {
 
 // Modification de la quantité de chaque produit par l'intermédiaire de l'input 
 function modifierQuantite(e) {
+    let seuilSuperieur = 100;
+    let alerteNombreProduitsMax = "Vous ne pouvez pas commander plus de 100 produits";
     let produitCible = e.target.closest("article");
     let quantiteProduit = e.target.closest(".itemQuantity");
-    let rechercheProduit = contenuLocalStorage.find(kanap => kanap.kanapChoisi == produitCible.dataset.id && kanap.couleurChoisie == produitCible.dataset.color);
-    let nouvelleQuantite = parseInt(quantiteProduit.value);
-    rechercheProduit.quantiteChoisie = nouvelleQuantite;
-    localStorage.setItem("choixClient", JSON.stringify(contenuLocalStorage));
+    if (quantiteProduit.value > seuilSuperieur) {
+        alert(alerteNombreProduitsMax);
+    } else {
+        let rechercheProduit = contenuLocalStorage.find(kanap => kanap.kanapChoisi == produitCible.dataset.id && kanap.couleurChoisie == produitCible.dataset.color);
+        let nouvelleQuantite = parseInt(quantiteProduit.value);
+        rechercheProduit.quantiteChoisie = nouvelleQuantite;
+        localStorage.setItem("choixClient", JSON.stringify(contenuLocalStorage));
+    }
 }
 
 // Suppression avec le bouton "Supprimer"
@@ -280,7 +286,7 @@ formulaire.order.addEventListener("click", (e) => {
     ) {
         const body = requeteBody();
         const stringifiedBody = JSON.stringify(body);
-        
+
         // Mise en place de la route POST pour envoyer la commande et les informations saisies dans le formulaire à l'API
         fetch(`${url}/order`, {
             method: "POST",
