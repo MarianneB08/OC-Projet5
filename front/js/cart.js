@@ -168,11 +168,15 @@ function afficherTotalArticlesEtPrix(contenuLocalStorage, prixProduitsAPI) {
 // Modification de la quantité de chaque produit par l'intermédiaire de l'input 
 function modifierQuantite(e) {
     let seuilSuperieur = 100;
+    let seuilInferieur = 0;
     let alerteNombreProduitsMax = "Vous ne pouvez pas commander plus de 100 produits";
+    let alertNombreProduitsMin = "Vous ne pouvez pas commander moins d'un article";
     let produitCible = e.target.closest("article");
     let quantiteProduit = e.target.closest(".itemQuantity");
     if (quantiteProduit.value > seuilSuperieur) {
         alert(alerteNombreProduitsMax);
+    } else if (quantiteProduit.value == seuilInferieur) {
+        alert(alertNombreProduitsMin);
     } else {
         let rechercheProduit = contenuLocalStorage.find(kanap => kanap.kanapChoisi == produitCible.dataset.id && kanap.couleurChoisie == produitCible.dataset.color);
         let nouvelleQuantite = parseInt(quantiteProduit.value);
